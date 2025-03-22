@@ -1,0 +1,27 @@
+name: Deploy 
+
+on:
+  push:
+
+jobs:
+  deploy:
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: [ 
+          {
+            environment: dev,
+            project-id: dev-github-environment-sample,
+            project-number: 901270760711
+          },
+          {
+            environment: prod,
+            project-id: prod-github-environment-sample,
+            project-number: 33604295332
+          }
+        ]
+    uses: ./.github/workflows/_deploy.yml
+    with:
+      project-id: ${{ matrix.environment.project-id }}
+      project-number: ${{ matrix.environment.project-number }}
+      environment: ${{ matrix.environment.environment }}

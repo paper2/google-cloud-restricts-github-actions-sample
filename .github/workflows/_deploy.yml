@@ -1,0 +1,33 @@
+name: Deploy to Cloud Run
+on:
+  workflow_call:
+    inputs:
+      project-id:
+        required: true
+        type: string
+      project-number:
+        required: true
+        type: number
+      environment:
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    # GitHub Envriomentを動的に設定している
+    environment: ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          project_id: ${{ inputs.project-id }}
+          workload_identity_provider: projects/${{ inputs.project-number }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
+      - name: Install the Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+      - name: Deploy
+        run: gcloud run deploy sample --image us-docker.pkg.dev/cloudrun/container/hello:latest --project ${{ inputs.project-id }} --platform managed --region us-central1
