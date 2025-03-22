@@ -21,6 +21,9 @@ jobs:
           }
         ]
     uses: ./.github/workflows/_deploy.yml
+    permissions:
+      contents: 'read'
+      id-token: 'write'
     with:
       project-id: ${{ matrix.environment.project-id }}
       project-number: ${{ matrix.environment.project-number }}
