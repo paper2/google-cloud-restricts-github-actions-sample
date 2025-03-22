@@ -8,7 +8,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        environment: [ 
+        environments: [ 
           {
             environment: dev,
             project-id: dev-github-environment-sample,
@@ -25,6 +25,6 @@ jobs:
       contents: 'read'
       id-token: 'write'
     with:
-      project-id: ${{ matrix.environment.project-id }}
-      project-number: ${{ matrix.environment.project-number }}
-      environment: ${{ matrix.environment.environment }}
+      project-id: ${{ matrix.environments.project-id }}
+      project-number: ${{ matrix.environments.project-number }}
+      environment: ${{ matrix.environments.environment }}
