@@ -14,7 +14,7 @@ on:
 
 jobs:
   deploy:
-    # GitHub Envriomentを動的に設定している
+    # Set GitHub Environment dynamically by using the reusable workflow
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     permissions:
