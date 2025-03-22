@@ -1,5 +1,7 @@
 locals {
   repository = "paper2/google-cloud-restricts-github-actions-sample"
+  // In the case of Direct Workload Identity Federation, you need to specify the subject if you are using `Environment`
+  github_actions_principal = "principal://iam.googleapis.com/${google_iam_workload_identity_pool.github_actions_pool.name}/subject/repo:${local.repository}:environment:${var.environment}"
 }
 
 resource "google_iam_workload_identity_pool" "github_actions_pool" {
@@ -29,11 +31,18 @@ resource "google_iam_workload_identity_pool_provider" "github_actions_workflow_p
 
 resource "google_project_iam_member" "github_actions" {
   project = var.project
+  // lists of roles to be granted to the member
   for_each = toset([
-    // 付与するロールを列挙
     "roles/run.developer"
   ])
-  role = each.value
-  // Direct Workload Identity Federationでは、`Environment`を利用している場合はsubjectに指定する必要がある。
-  member = "principal://iam.googleapis.com/${google_iam_workload_identity_pool.github_actions_pool.name}/subject/repo:${local.repository}:environment:${var.environment}"
+  role   = each.value
+  member = local.github_actions_principal
+}
+
+data "google_compute_default_service_account" "default" {}
+// Grant the default service account the ability to impersonate the GitHub Actions principal for deployments of cloud run services.
+resource "google_service_account_iam_member" "default-account" {
+  service_account_id = data.google_compute_default_service_account.default.name
+  role               = "roles/iam.serviceAccountUser"
+  member             = local.github_actions_principal
 }
